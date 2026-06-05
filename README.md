@@ -1,16 +1,87 @@
-# React + Vite
+# Quizix 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Quizix Banner](https://via.placeholder.com/1200x400.png?text=Quizix+-+Real-time+Quiz+%26+Assessment+Platform)
 
-Currently, two official plugins are available:
+**Quizix** is a modern, real-time quiz and assessment platform designed with a clean, Typeform-inspired aesthetic. Built for educators and organizations, it allows seamless creation, hosting, and participation in live interactive exams.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Key Features
 
-## React Compiler
+- **Real-Time Synchronization**: Instantaneous updates between host and participants using Firebase Realtime Database.
+- **Dynamic Exam Rooms**: Dedicated, frictionless participant environments with robust timer tracking and anti-cheat measures.
+- **Live Host Lobby**: Real-time participant tracking, session management, and live control over the exam flow.
+- **Analytics & Reporting**: Comprehensive host reports and individual student result views after exam completion.
+- **Typeform-Inspired UI**: A professional, minimalist design system featuring a warm off-white (`#FAF9F7`) background, clean white surfaces, and teal (`#0D9488`) primary accents.
+- **Secure Authentication**: Built-in authentication and role-based routing to ensure exam integrity.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Tech Stack
 
-## Expanding the ESLint configuration
+- **Frontend Framework**: React 19 + Vite
+- **Routing**: React Router DOM v7
+- **Styling**: Tailwind CSS v4 + Vanilla CSS Modules
+- **Backend/Database**: Firebase (Realtime Database & Authentication)
+- **HTTP Client**: Axios
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🏗️ Architecture
+
+Quizix leverages a custom hook architecture to manage complex real-time state and database operations:
+- `useQuizSession`: Manages the student's active exam state, timer, and answers.
+- `useHostLobby`: Controls the host's view, managing waiting rooms and launching exams.
+- `useCreateQuiz`: Handles the formulation, validation, and database insertion of new exams.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v18 or higher recommended)
+- A Firebase project with Realtime Database and Authentication enabled
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/quizix.git
+   cd quizix
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Configure Environment Variables:
+   Create a `.env` file in the root directory and add your Firebase configuration:
+   ```env
+   VITE_FIREBASE_API_KEY=your_api_key
+   VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain
+   VITE_FIREBASE_PROJECT_ID=your_project_id
+   VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_FIREBASE_DATABASE_URL=your_database_url
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+## 📸 Screenshots
+
+| Host Dashboard | Exam Room |
+| --- | --- |
+| ![Dashboard](https://via.placeholder.com/500x300.png?text=Host+Dashboard) | ![Exam Room](https://via.placeholder.com/500x300.png?text=Exam+Room) |
+
+| Quiz Creator | Results Analytics |
+| --- | --- |
+| ![Creator](https://via.placeholder.com/500x300.png?text=Quiz+Creator) | ![Results](https://via.placeholder.com/500x300.png?text=Results+Analytics) |
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/yourusername/quizix/issues).
+
+## 📄 License
+
+This project is open-sourced under the [MIT License](LICENSE).
+
+---
+*This project was developed as a comprehensive graduation capstone project, demonstrating full-stack real-time application development.*

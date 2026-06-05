@@ -14,7 +14,7 @@ import { useLocation } from 'react-router-dom';
 import { ExplorePage } from './pages/ExplorePage';
 function App() {
   const location = useLocation();
-  const hideNavbar = location.pathname.startsWith('/exam/');
+  const hideNavbar = location.pathname.startsWith('/exam/') || location.pathname === '/login';
   return (
     <>
       {!hideNavbar && <Navbar />}
