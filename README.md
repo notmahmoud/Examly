@@ -65,15 +65,6 @@ Quizix leverages a custom hook architecture to manage complex real-time state an
    npm run dev
    ```
 
-## 📸 Screenshots
-
-| Host Dashboard | Exam Room |
-| --- | --- |
-| ![Dashboard](https://via.placeholder.com/500x300.png?text=Host+Dashboard) | ![Exam Room](https://via.placeholder.com/500x300.png?text=Exam+Room) |
-
-| Quiz Creator | Results Analytics |
-| --- | --- |
-| ![Creator](https://via.placeholder.com/500x300.png?text=Quiz+Creator) | ![Results](https://via.placeholder.com/500x300.png?text=Results+Analytics) |
 
 ## 🤝 Contributing
 
