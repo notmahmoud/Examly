@@ -20,6 +20,7 @@ export function ExamRoom() {
     const [examTitle, setExamTitle] = useState('');
     const [showSubmitModal, setShowSubmitModal] = useState(false);
     const [showLeaveModal, setShowLeaveModal] = useState(false);
+    const [isPublic, setIsPublic] = useState(false);
 
     // Load room data on mount
     useEffect(() => {
@@ -29,6 +30,7 @@ export function ExamRoom() {
             if (data) {
                 setQuestions(data.questions);
                 setExamTitle(data.examTitle);
+                setIsPublic(data.isPublic);
 
 
                 // If host somehow lands here, redirect to lobby, but if public = navigte to exam
@@ -39,7 +41,7 @@ export function ExamRoom() {
                 // Get the current participant data
                 const currentParticipant = data.participants?.[auth.currentUser.uid] || {};
 
-                if (currentParticipant.status === 'finished') {
+                if (currentParticipant.status === 'finished' && !data.isPublic) {
                     navigate('/results', {
                         state: {
                             score: currentParticipant.score,
@@ -50,11 +52,6 @@ export function ExamRoom() {
                     return;
                 }
                 if (data.isPublic) {
-                    const now = Date.now();
-                    update(ref(db, `rooms/${roomCode}/participants/${auth.currentUser.uid}`), {
-                        startedAt: now,
-                        status: 'joined'
-                    });
                     setTimeLeft(data.examDuration * 60);
                 }
                 // startedAt to calculate the remaining time if participant refreshes during the exam
@@ -101,12 +98,14 @@ export function ExamRoom() {
         setSubmitted(true);
         navigate('/results', { state: { score: total, questions, userAnswers } })
 
-        // Update participant status and score in database
-        update(participantRef, {
-            status: 'finished',
-            score: total,
-            userAnswers: userAnswers
-        });
+        if (!isPublic) {
+            // Update participant status and score in database
+            update(participantRef, {
+                status: 'finished',
+                score: total,
+                userAnswers: userAnswers
+            });
+        }
     };
 
 
