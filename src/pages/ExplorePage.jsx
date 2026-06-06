@@ -90,7 +90,7 @@ export function ExplorePage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredRooms.map(room => (
-                        <div key={room.roomCode} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col h-full hover:shadow-md transition-shadow">
+                        <div key={room.roomCode} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col h-full hover:shadow-md hover:border-examly-accent transition-all duration-300">
                             <div className="flex justify-between items-start mb-4">
                                 <h2 className="text-xl font-bold text-gray-800 line-clamp-2 pr-2">{room.examTitle}</h2>
                                 <span className={`text-xs font-bold px-3 py-1 rounded-full border uppercase tracking-wider whitespace-nowrap ${difficultyColors[room.difficulty] || difficultyColors.medium}`}>
