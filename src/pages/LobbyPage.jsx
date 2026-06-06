@@ -79,7 +79,7 @@ export function LobbyPage() {
     };
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col pb-32">
+        <div className="min-h-screen bg-examly-base font-sans flex flex-col pb-32">
             
             {/* Top Bar with Leave Button */}
             <div className="fixed top-0 left-0 p-6 z-50">
@@ -196,7 +196,7 @@ export function LobbyPage() {
 
             {/* Leave Modal */}
             {showLeaveModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fade-in px-4">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm px-4">
                     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full mx-auto transform transition-all">
                         <h3 className="text-2xl font-bold text-gray-800 mb-3 text-center">Leave Lobby?</h3>
                         <p className="text-gray-500 mb-8 text-center leading-relaxed">

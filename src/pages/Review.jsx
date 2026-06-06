@@ -47,7 +47,7 @@ export function Review() {
     };
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col pb-32">
+        <div className="min-h-screen bg-examly-base font-sans  flex flex-col pb-32">
             
             <div className="flex-1 flex flex-col justify-center items-center px-6 pt-10 max-w-2xl w-full mx-auto">
                 <div className="text-center mb-8">

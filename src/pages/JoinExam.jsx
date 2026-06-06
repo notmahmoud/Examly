@@ -20,7 +20,7 @@ export function JoinExam() {
     }
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col pb-32">
+        <div className="min-h-screen bg-examly-base font-sans flex flex-col pb-32">
             <div className="flex-1 flex flex-col justify-center items-center px-6 max-w-lg w-full mx-auto">
                 <div className="w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center">
                     <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center text-examly-accent mx-auto mb-6">

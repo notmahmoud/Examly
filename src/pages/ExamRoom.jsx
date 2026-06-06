@@ -29,9 +29,8 @@ export function ExamRoom() {
             if (data) {
                 setQuestions(data.questions);
                 setExamTitle(data.examTitle);
-                if (data.isPublic) {
-                    update(ref(db, 'rooms/' + roomCode), { status: 'active' });
-                }
+
+
                 // If host somehow lands here, redirect to lobby, but if public = navigte to exam
                 if (data.hostId === auth.currentUser?.uid && !data.isPublic) {
                     navigate('/lobby/' + roomCode, { replace: true });
@@ -39,7 +38,7 @@ export function ExamRoom() {
                 }
                 // Get the current participant data
                 const currentParticipant = data.participants?.[auth.currentUser.uid] || {};
-                
+
                 if (currentParticipant.status === 'finished') {
                     navigate('/results', {
                         state: {
@@ -50,21 +49,29 @@ export function ExamRoom() {
                     });
                     return;
                 }
-
-                // startedAt to calculate the remaining time if participant refreshes during the exam
-                if (!currentParticipant.startedAt) {
+                if (data.isPublic) {
                     const now = Date.now();
-                    update(ref(db, `rooms/${roomCode}/participants/${auth.currentUser.uid}`), { startedAt: now });
-                    setTimeLeft(data.examDuration * 60); // first join, full time
-                } else {
-                    const elapsed = Math.floor((Date.now() - currentParticipant.startedAt) / 1000);
-                    const remaining = (data.examDuration * 60) - elapsed;
-                    setTimeLeft(remaining > 0 ? remaining : 0); // returning after refresh
+                    update(ref(db, `rooms/${roomCode}/participants/${auth.currentUser.uid}`), {
+                        startedAt: now,
+                        status: 'joined'
+                    });
+                    setTimeLeft(data.examDuration * 60);
                 }
-
+                // startedAt to calculate the remaining time if participant refreshes during the exam
+                else {
+                    if (!currentParticipant.startedAt) {
+                        const now = Date.now();
+                        update(ref(db, `rooms/${roomCode}/participants/${auth.currentUser.uid}`), { startedAt: now });
+                        setTimeLeft(data.examDuration * 60); // first join, full time
+                    } else {
+                        const elapsed = Math.floor((Date.now() - currentParticipant.startedAt) / 1000);
+                        const remaining = (data.examDuration * 60) - elapsed;
+                        setTimeLeft(remaining > 0 ? remaining : 0); // returning after refresh
+                    }
+                }
             }
         });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Warn before unload
@@ -83,8 +90,6 @@ export function ExamRoom() {
         let total = 0;
         // Mark participant as finished in database
         const participantRef = ref(db, 'rooms/' + roomCode + '/participants/' + auth.currentUser.uid);
-        update(participantRef, { status: 'finished' });
-
         // Compare each answer against the correct answer using ref to avoid stale closure
         questions.forEach((question, index) => {
             if (userAnswersRef.current[index] === question.correct_answer) {
@@ -114,7 +119,7 @@ export function ExamRoom() {
             setTimeLeft(timeLeft - 1);
         }, 1000);
         return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [timeLeft]);
 
     const minutes = Math.floor(timeLeft / 60);
@@ -134,14 +139,14 @@ export function ExamRoom() {
     const answeredCount = Object.keys(userAnswers).length;
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col pb-32">
-            
+        <div className="min-h-screen bg-examly-base font-sans  flex flex-col pb-32">
+
             {/* Specific Exam Top Bar */}
             {questions.length > 0 && (
                 <div className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-50 flex items-center justify-between px-6 shadow-sm">
                     {/* Left: Back Button & Title */}
                     <div className="flex items-center gap-4 flex-1">
-                        <button 
+                        <button
                             onClick={() => setShowLeaveModal(true)}
                             className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 text-gray-500 transition-colors cursor-pointer"
                         >
@@ -166,7 +171,7 @@ export function ExamRoom() {
                             <span className="mx-1">/</span>
                             {questions.length} answered
                         </span>
-                        <button 
+                        <button
                             onClick={() => setShowSubmitModal(true)}
                             className="bg-examly-accent hover:bg-teal-800 text-white font-bold py-2 px-6 rounded-lg transition-colors cursor-pointer text-sm"
                         >
@@ -187,15 +192,15 @@ export function ExamRoom() {
                             return (
                                 <div key={index} id={`question-${index}`} className="py-10 border-b border-gray-200 last:border-0 text-left">
                                     <h2 className="text-xl font-medium text-gray-800 mb-8 leading-relaxed flex">
-                                        <span className="text-gray-400 font-bold mr-4 w-6">{index + 1}.</span> 
+                                        <span className="text-gray-400 font-bold mr-4 w-6">{index + 1}.</span>
                                         <span className="flex-1">{question.question}</span>
                                     </h2>
                                     <div className="space-y-3 pl-10">
                                         {options.map(option => {
                                             const isSelected = userAnswers[index] === option;
                                             return (
-                                                <button 
-                                                    key={option} 
+                                                <button
+                                                    key={option}
                                                     onClick={() => handleAnswer(option, index)}
                                                     className={`w-full text-left p-4 rounded-xl transition-all duration-200 border-2 font-medium cursor-pointer ${isSelected ? 'bg-examly-accent text-white border-examly-accent' : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'}`}
                                                 >
@@ -211,7 +216,7 @@ export function ExamRoom() {
 
                 {questions.length > 0 && !submitted && (
                     <div className="mt-16 mb-8 flex justify-end">
-                        <button 
+                        <button
                             onClick={() => setShowSubmitModal(true)}
                             className="bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-12 rounded-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 shadow-md text-lg"
                         >
@@ -223,22 +228,22 @@ export function ExamRoom() {
 
             {/* Confirmation Modal - Submit */}
             {showSubmitModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fade-in px-4">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm px-4">
                     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full mx-auto transform transition-all">
                         <h3 className="text-2xl font-bold text-gray-800 mb-3 text-center">Submit Exam?</h3>
                         <p className="text-gray-500 mb-8 text-center leading-relaxed">
-                            {answeredCount < questions.length 
-                                ? `You have ${questions.length - answeredCount} unanswered questions. Are you sure you want to submit?` 
+                            {answeredCount < questions.length
+                                ? `You have ${questions.length - answeredCount} unanswered questions. Are you sure you want to submit?`
                                 : 'Are you sure you want to submit your answers? You cannot undo this action.'}
                         </p>
                         <div className="flex gap-4">
-                            <button 
+                            <button
                                 onClick={() => setShowSubmitModal(false)}
                                 className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={() => {
                                     setShowSubmitModal(false);
                                     scoreCalculate();
@@ -254,20 +259,20 @@ export function ExamRoom() {
 
             {/* Confirmation Modal - Leave */}
             {showLeaveModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm animate-fade-in px-4">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/40 backdrop-blur-sm  px-4">
                     <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full mx-auto transform transition-all">
                         <h3 className="text-2xl font-bold text-gray-800 mb-3 text-center">Leave Exam?</h3>
                         <p className="text-gray-500 mb-8 text-center leading-relaxed">
                             Are you sure you want to exit? Your progress will be lost and you will get a score of 0.
                         </p>
                         <div className="flex gap-4">
-                            <button 
+                            <button
                                 onClick={() => setShowLeaveModal(false)}
                                 className="flex-1 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors cursor-pointer"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={() => {
                                     setShowLeaveModal(false);
                                     navigate('/');

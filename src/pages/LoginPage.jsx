@@ -17,7 +17,7 @@ export function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/');
-    } catch (error) {
+    } catch  {
       setErrorMessage('Invalid email or password');
     }
   };
@@ -26,7 +26,7 @@ export function LoginPage() {
     try {
       await signInWithPopup(auth, googleProvider);
       navigate('/');
-    } catch (error) {
+    } catch  {
       setErrorMessage('Error signing in with Google. Please try again.');
     }
   };
@@ -62,7 +62,7 @@ export function LoginPage() {
   const labelClasses = "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1";
 
   return (
-    <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-examly-base font-sans  flex flex-col justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="mb-10 text-center">
           <h1 className="text-4xl font-black text-examly-accent tracking-tighter cursor-pointer" onClick={() => navigate('/')}>
             Examly

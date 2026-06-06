@@ -54,7 +54,7 @@ export function ExplorePage() {
     };
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col pb-32">
+        <div className="min-h-screen bg-examly-base font-sans  flex flex-col pb-32">
             <div className="flex-1 max-w-6xl w-full mx-auto px-6 pt-20">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold text-gray-800 mb-8">Explore Exams</h1>

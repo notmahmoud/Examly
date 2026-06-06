@@ -4,7 +4,7 @@ export function HomePage() {
     const navigate = useNavigate()
     
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col">
+        <div className="min-h-screen bg-examly-base font-sans  flex flex-col">
             {/* Hero Section */}
             <div className="flex-1 flex flex-col md:flex-row items-center justify-between max-w-6xl mx-auto w-full px-6 py-20 gap-12">
                 <div className="flex-1 space-y-8">

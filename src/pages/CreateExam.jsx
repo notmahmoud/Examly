@@ -96,7 +96,7 @@ export function CreateExam() {
     const labelClasses = "block text-sm font-bold text-gray-700 mb-2";
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col pb-32">
+        <div className="min-h-screen bg-examly-base font-sans  flex flex-col pb-32">
             <div className="flex-1 max-w-3xl w-full mx-auto px-6 pt-20">
                 <h1 className="text-4xl font-bold text-gray-800 mb-3 text-center">Create a New Exam</h1>
                 <p className="text-gray-500 text-center mb-12">Follow the steps below to build and launch your exam room.</p>
@@ -120,7 +120,7 @@ export function CreateExam() {
 
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-10">
                     {step === 1 && (
-                        <div className="space-y-6 animate-fade-in">
+                        <div className="space-y-6 ">
                             <div>
                                 <label className={labelClasses}>Exam Title</label>
                                 <input type="text"
@@ -179,7 +179,7 @@ export function CreateExam() {
                     )}
                     
                     {step === 2 && (
-                        <div className="space-y-8 animate-fade-in">
+                        <div className="space-y-8 ">
                             <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
                                 {!showAI && (
                                     <button 

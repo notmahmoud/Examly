@@ -23,7 +23,7 @@ export function HostResults() {
     }, [roomCode]);
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans animate-fade-in flex flex-col pb-32">
+        <div className="min-h-screen bg-examly-base font-sans flex flex-col pb-32">
             <div className="flex-1 max-w-4xl w-full mx-auto px-6 pt-20">
                 <div className="text-center mb-12">
                     <h1 className="text-3xl font-bold text-gray-800 mb-2">{participant?.name}'s Results</h1>
