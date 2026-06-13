@@ -105,9 +105,9 @@ export function CreateExam() {
                 <div className="flex items-center justify-center mb-16 relative max-w-lg mx-auto">
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-200 -z-10"></div>
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-examly-accent -z-10 transition-all duration-500" style={{ width: step === 1 ? '0%' : '50%' }}></div>
-                    
+
                     <div className="flex items-center justify-between w-full">
-                        {[ {num:1, label:'Settings'}, {num:2, label:'Questions'}, {num:3, label:'Launch'} ].map((s) => (
+                        {[{ num: 1, label: 'Settings' }, { num: 2, label: 'Questions' }, { num: 3, label: 'Launch' }].map((s) => (
                             <div key={s.num} className="flex flex-col items-center bg-examly-base px-2">
                                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${step > s.num ? 'bg-examly-accent text-white' : step === s.num ? 'bg-examly-accent text-white ring-4 ring-teal-100' : 'bg-gray-200 text-gray-500'}`}>
                                     {step > s.num ? '✓' : s.num}
@@ -140,16 +140,16 @@ export function CreateExam() {
                                     onChange={(e) => setExamDescription(e.target.value)}
                                 />
                             </div>
-                            
+
                             <div>
                                 <label className={labelClasses}>Exam Duration (minutes)</label>
-                                <input type="number" min="1" 
+                                <input type="number" min="1"
                                     className={inputClasses}
-                                    value={examDuration} 
-                                    onChange={(e) => setExamDuration(parseInt(e.target.value))} 
+                                    value={examDuration}
+                                    onChange={(e) => setExamDuration(parseInt(e.target.value))}
                                 />
                             </div>
-                            
+
                             <div className="pt-2">
                                 <label className="flex items-center space-x-3 cursor-pointer group">
                                     <div className="relative flex items-center">
@@ -164,11 +164,11 @@ export function CreateExam() {
                                 </label>
                                 {isPublic && <p className="text-sm text-gray-500 mt-2 ml-8">Your exam will be visible immediately on the Explore page for anyone to join.</p>}
                             </div>
-                            
+
                             {errorMessage && <p className="text-sm text-red-500 mt-2 font-medium">{errorMessage}</p>}
-                            
+
                             <div className="pt-6">
-                                <button 
+                                <button
                                     onClick={handleStepNext}
                                     className="w-full bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 cursor-pointer hover:-translate-y-0.5 shadow-sm"
                                 >
@@ -177,23 +177,23 @@ export function CreateExam() {
                             </div>
                         </div>
                     )}
-                    
+
                     {step === 2 && (
                         <div className="space-y-8 ">
                             <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
                                 {!showAI && (
-                                    <button 
+                                    <button
                                         onClick={() => setShowAI(true)}
                                         className="w-full bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-sm cursor-pointer hover:-translate-y-0.5 flex justify-center items-center gap-2 text-lg"
                                     >
                                         ✨ Generate Questions with AI
                                     </button>
                                 )}
-                                
+
                                 <div className={`transition-all duration-500 overflow-hidden ${showAI ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
                                     <div className="flex justify-between items-center mb-6">
                                         <h3 className="font-bold text-gray-800 text-lg">AI Question Generator</h3>
-                                        <button 
+                                        <button
                                             onClick={() => setShowAI(false)}
                                             className="text-gray-400 hover:text-gray-600 font-bold text-sm hover:underline focus:outline-none cursor-pointer"
                                         >
@@ -211,7 +211,7 @@ export function CreateExam() {
                                                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                                             />
                                         </div>
-                                        
+
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Count</label>
@@ -223,9 +223,9 @@ export function CreateExam() {
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Difficulty</label>
-                                                <select 
+                                                <select
                                                     className="w-full border border-gray-200 rounded-lg p-3 bg-white text-gray-800 outline-none focus:ring-2 focus:ring-examly-accent transition-all appearance-none"
-                                                    value={difficulty} 
+                                                    value={difficulty}
                                                     onChange={(e) => setDifficulty(e.target.value)}
                                                 >
                                                     <option value="easy">Easy</option>
@@ -235,9 +235,9 @@ export function CreateExam() {
                                             </div>
                                             <div>
                                                 <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Type</label>
-                                                <select 
+                                                <select
                                                     className="w-full border border-gray-200 rounded-lg p-3 bg-white text-gray-800 outline-none focus:ring-2 focus:ring-examly-accent transition-all appearance-none"
-                                                    value={type} 
+                                                    value={type}
                                                     onChange={(e) => setType(e.target.value)}
                                                 >
                                                     <option value="multiple">Multiple Choice</option>
@@ -246,8 +246,8 @@ export function CreateExam() {
                                                 </select>
                                             </div>
                                         </div>
-                                        
-                                        <button 
+
+                                        <button
                                             onClick={handleCreate}
                                             disabled={isLoading}
                                             className={`w-full mt-4 bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex justify-center items-center ${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:-translate-y-0.5 shadow-sm'}`}
@@ -266,7 +266,7 @@ export function CreateExam() {
                             <div className="space-y-6">
                                 {manualQuestions.map((q, index) => (
                                     <div key={index} className="border border-gray-200 rounded-xl p-6 relative bg-white hover:border-gray-300 transition-colors">
-                                        <button 
+                                        <button
                                             onClick={() => deleteQuestion(index)}
                                             className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
                                             title="Delete Question"
@@ -275,9 +275,9 @@ export function CreateExam() {
                                                 <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                                             </svg>
                                         </button>
-                                        
+
                                         <h4 className="font-bold text-gray-700 mb-4">Question {index + 1}</h4>
-                                        
+
                                         <div className="space-y-4">
                                             <input
                                                 className="w-full border-b-2 border-gray-200 py-2 bg-transparent text-gray-800 font-medium outline-none focus:border-examly-accent transition-colors placeholder-gray-400"
@@ -290,7 +290,7 @@ export function CreateExam() {
                                                     setManualQuestions(updatedQuestions);
                                                 }}
                                             />
-                                            
+
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                                                 <div>
                                                     <label className="block text-xs font-bold text-green-600 uppercase mb-1">Correct Answer</label>
@@ -306,7 +306,7 @@ export function CreateExam() {
                                                         }}
                                                     />
                                                 </div>
-                                                
+
                                                 <div className="space-y-3">
                                                     <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Incorrect Answers</label>
                                                     {q.incorrect_answers.map((ans, ansIndex) => (
@@ -329,9 +329,9 @@ export function CreateExam() {
                                     </div>
                                 ))}
                             </div>
-                            
+
                             <div className="flex justify-center pt-2">
-                                <button 
+                                <button
                                     onClick={addQuestion}
                                     className="flex items-center gap-2 text-examly-accent font-bold hover:bg-teal-50 py-3 px-6 rounded-xl transition-colors cursor-pointer"
                                 >
@@ -343,15 +343,15 @@ export function CreateExam() {
                             </div>
 
                             {errorMessage && <p className="text-sm text-red-500 text-center font-medium">{errorMessage}</p>}
-                            
+
                             <div className="pt-6 flex gap-4">
-                                <button 
+                                <button
                                     onClick={() => setStep(1)}
                                     className="flex-1 py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all duration-300 cursor-pointer hover:-translate-y-0.5"
                                 >
                                     Back
                                 </button>
-                                <button 
+                                <button
                                     onClick={handleNext}
                                     className="flex-[2] bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 cursor-pointer hover:-translate-y-0.5 shadow-sm"
                                 >

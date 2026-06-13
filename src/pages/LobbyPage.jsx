@@ -137,7 +137,7 @@ export function LobbyPage() {
                                             <div key={i} className="flex justify-between items-center py-4 px-6 hover:bg-gray-50 transition-colors">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-8 h-8 rounded-full bg-examly-accent text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                                                        {participant.name.charAt(0).toUpperCase()}
+                                                        {participant?.name.charAt(0).toUpperCase()}
                                                     </div>
                                                     <span className="font-bold text-gray-800">{participant.name}</span>
                                                 </div>
