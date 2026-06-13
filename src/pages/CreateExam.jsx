@@ -1,368 +1,434 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+const STEPS = [
+  { num: 1, label: 'Settings', desc: 'Title, duration & visibility' },
+  { num: 2, label: 'Questions', desc: 'Add or generate questions' },
+  { num: 3, label: 'Launch', desc: 'Review and go live' },
+];
+
 export function CreateExam() {
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [difficulty, setDifficulty] = useState('medium');
+  const [questionsCount, setQuestionsCount] = useState(10);
+  const [type, setType] = useState('multiple');
+  const [isPublic, setIsPublic] = useState(false);
+  const [examDuration, setExamDuration] = useState(10);
+  const [examTitle, setExamTitle] = useState('');
+  const [examDescription, setExamDescription] = useState('');
+  const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showAI, setShowAI] = useState(false);
+  const [manualQuestions, setManualQuestions] = useState([
+    { question: '', correct_answer: '', incorrect_answers: ['', '', ''] }
+  ]);
+  const [step, setStep] = useState(1);
 
-    const [input, setInput] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const [difficulty, setDifficulty] = useState('medium');
-    const [questionsCount, setQuestionsCount] = useState(10);
-    const [type, setType] = useState('multiple');
-    const [isPublic, setIsPublic] = useState(false);
-    const [examDuration, setExamDuration] = useState(10);
-    const [examTitle, setExamTitle] = useState('');
-    const [examDescription, setExamDescription] = useState('');
-    const navigate = useNavigate();
-    const [errorMessage, setErrorMessage] = useState('');
-    const [showAI, setShowAI] = useState(false);
-    const [manualQuestions, setManualQuestions] = useState([
-        { question: '', correct_answer: '', incorrect_answers: ['', '', ''] }
-    ]);
-    const [step, setStep] = useState(1); // 1: exam details, 2: exam questions, 3: launch
-
-    const handleCreate = async () => {
-        setIsLoading(true);
-        if (!examTitle || !input) {
-            setErrorMessage('Please fill in all fields');
-            return;
-        }
-        try {
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    model: "llama-3.3-70b-versatile",
-                    messages: [
-                        { role: "system", content: "You are a quiz generator. Return only a JSON array of 10 questions. Each object must have: question, correct_answer, incorrect_answers (array of 3 wrong answers). No extra text, just the JSON array." },
-                        {
-                            role: "user", content: `Generate ${questionsCount} questions about ${input}4
+  const handleCreate = async () => {
+    setIsLoading(true);
+    if (!examTitle || !input) {
+      setErrorMessage('Please fill in all fields');
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: "llama-3.3-70b-versatile",
+          messages: [
+            { role: "system", content: "You are a quiz generator. Return only a JSON array of 10 questions. Each object must have: question, correct_answer, incorrect_answers (array of 3 wrong answers). No extra text, just the JSON array." },
+            {
+              role: "user", content: `Generate ${questionsCount} questions about ${input}4
                      with ${difficulty} difficulty,
                       Easy means high school level,
                        Medium means university level,
                         Hard means expert level, 
                         Type: ${type} For true/false questions, 
                         incorrect_answers should only contain one wrong answer (either 'True' or 'False')` }
-                    ]
-                })
-            });
-            const data = await response.json();
-            const parsed = JSON.parse(data.choices[0].message.content);
-            setManualQuestions([...manualQuestions, ...parsed]);
-            setIsLoading(false);
-            setErrorMessage('');
-        } catch {
-            setErrorMessage('AI generation failed, please try again.');
-        } finally {
-            setIsLoading(false);
-        }
-
-    };
-    const handleStepNext = () => {
-        if (!examTitle) {
-            setErrorMessage('Please enter an exam title');
-            return;
-        }
-        setErrorMessage('');
-        setStep(2);
-    };
-
-    const addQuestion = () => {
-        setManualQuestions([...manualQuestions,
-        { question: '', correct_answer: '', incorrect_answers: ['', '', ''] }
-        ]);
+          ]
+        })
+      });
+      const data = await response.json();
+      const parsed = JSON.parse(data.choices[0].message.content);
+      setManualQuestions([...manualQuestions, ...parsed]);
+      setErrorMessage('');
+    } catch {
+      setErrorMessage('AI generation failed, please try again.');
+    } finally {
+      setIsLoading(false);
     }
-    const deleteQuestion = (index) => {
-        setManualQuestions(manualQuestions.filter((_, i) => i !== index));
-    };
-    // Only proceed if there is at least one question
-    const handleNext = () => {
-        // Validate that all questions have a correct answer
-        const incomplete = manualQuestions.filter(q => q.question && !q.correct_answer);
-        if (incomplete.length > 0) {
-            setErrorMessage(`${incomplete.length} question(s) are missing a correct answer.`);
-            return;
-        }
-        const allQuestions = [...manualQuestions.filter(q => q.question && q.correct_answer)];
-        if (allQuestions.length === 0) {
-            setErrorMessage('Please add at least one question before proceeding.');
-            return;
-        }
-        navigate('/review', { replace: true, state: { questions: allQuestions, examTitle, examDescription, examDuration, difficulty, questionsCount, type, isPublic } });
-    };
+  };
 
-    const inputClasses = "w-full border border-gray-200 rounded-lg p-4 bg-white text-gray-800 outline-none focus:ring-2 focus:ring-examly-accent focus:border-transparent transition-all";
-    const labelClasses = "block text-sm font-bold text-gray-700 mb-2";
+  const handleStepNext = () => {
+    if (!examTitle) {
+      setErrorMessage('Please enter an exam title');
+      return;
+    }
+    setErrorMessage('');
+    setStep(2);
+  };
 
-    return (
-        <div className="min-h-screen bg-examly-base font-sans  flex flex-col pb-32">
-            <div className="flex-1 max-w-3xl w-full mx-auto px-6 pt-20">
-                <h1 className="text-4xl font-bold text-gray-800 mb-3 text-center">Create a New Exam</h1>
-                <p className="text-gray-500 text-center mb-12">Follow the steps below to build and launch your exam room.</p>
+  const addQuestion = () => {
+    setManualQuestions([...manualQuestions,
+      { question: '', correct_answer: '', incorrect_answers: ['', '', ''] }
+    ]);
+  };
 
-                {/* Step indicator */}
-                <div className="flex items-center justify-center mb-16 relative max-w-lg mx-auto">
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-gray-200 -z-10"></div>
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-examly-accent -z-10 transition-all duration-500" style={{ width: step === 1 ? '0%' : '50%' }}></div>
+  const deleteQuestion = (index) => {
+    setManualQuestions(manualQuestions.filter((_, i) => i !== index));
+  };
 
-                    <div className="flex items-center justify-between w-full">
-                        {[{ num: 1, label: 'Settings' }, { num: 2, label: 'Questions' }, { num: 3, label: 'Launch' }].map((s) => (
-                            <div key={s.num} className="flex flex-col items-center bg-examly-base px-2">
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors duration-300 ${step > s.num ? 'bg-examly-accent text-white' : step === s.num ? 'bg-examly-accent text-white ring-4 ring-teal-100' : 'bg-gray-200 text-gray-500'}`}>
-                                    {step > s.num ? '✓' : s.num}
-                                </div>
-                                <span className={`mt-3 text-sm font-bold ${step >= s.num ? 'text-gray-800' : 'text-gray-400'}`}>{s.label}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+  const handleNext = () => {
+    const incomplete = manualQuestions.filter(q => q.question && !q.correct_answer);
+    if (incomplete.length > 0) {
+      setErrorMessage(`${incomplete.length} question(s) are missing a correct answer.`);
+      return;
+    }
+    const allQuestions = [...manualQuestions.filter(q => q.question && q.correct_answer)];
+    if (allQuestions.length === 0) {
+      setErrorMessage('Please add at least one question before proceeding.');
+      return;
+    }
+    navigate('/review', { replace: true, state: { questions: allQuestions, examTitle, examDescription, examDuration, difficulty, questionsCount, type, isPublic } });
+  };
 
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-10">
-                    {step === 1 && (
-                        <div className="space-y-6 ">
-                            <div>
-                                <label className={labelClasses}>Exam Title</label>
-                                <input type="text"
-                                    className={inputClasses}
-                                    placeholder="e.g. Midterm History"
-                                    value={examTitle}
-                                    onChange={(e) => setExamTitle(e.target.value)}
-                                />
-                            </div>
+  const inputCls = "w-full border border-gray-200 rounded-lg px-4 py-3 bg-white text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-examly-accent focus:border-transparent transition-all text-sm";
+  const labelCls = "block text-xs font-bold text-gray-500 uppercase tracking-widest mb-2";
 
-                            <div>
-                                <label className={labelClasses}>Description</label>
-                                <input type="text"
-                                    className={inputClasses}
-                                    placeholder='Briefly describe what this exam covers..'
-                                    value={examDescription}
-                                    onChange={(e) => setExamDescription(e.target.value)}
-                                />
-                            </div>
+  return (
+    <div className="min-h-screen bg-examly-base font-sans flex pb-24">
 
-                            <div>
-                                <label className={labelClasses}>Exam Duration (minutes)</label>
-                                <input type="number" min="1"
-                                    className={inputClasses}
-                                    value={examDuration}
-                                    onChange={(e) => setExamDuration(parseInt(e.target.value))}
-                                />
-                            </div>
-
-                            <div className="pt-2">
-                                <label className="flex items-center space-x-3 cursor-pointer group">
-                                    <div className="relative flex items-center">
-                                        <input
-                                            type="checkbox"
-                                            className="w-5 h-5 border-2 border-gray-300 rounded text-examly-accent focus:ring-examly-accent cursor-pointer peer"
-                                            checked={isPublic}
-                                            onChange={(e) => setIsPublic(e.target.checked)}
-                                        />
-                                    </div>
-                                    <span className="text-gray-700 font-bold group-hover:text-examly-accent transition-colors">Public Room</span>
-                                </label>
-                                {isPublic && <p className="text-sm text-gray-500 mt-2 ml-8">Your exam will be visible immediately on the Explore page for anyone to join.</p>}
-                            </div>
-
-                            {errorMessage && <p className="text-sm text-red-500 mt-2 font-medium">{errorMessage}</p>}
-
-                            <div className="pt-6">
-                                <button
-                                    onClick={handleStepNext}
-                                    className="w-full bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 cursor-pointer hover:-translate-y-0.5 shadow-sm"
-                                >
-                                    Next Step
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                    {step === 2 && (
-                        <div className="space-y-8 ">
-                            <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-                                {!showAI && (
-                                    <button
-                                        onClick={() => setShowAI(true)}
-                                        className="w-full bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 shadow-sm cursor-pointer hover:-translate-y-0.5 flex justify-center items-center gap-2 text-lg"
-                                    >
-                                        ✨ Generate Questions with AI
-                                    </button>
-                                )}
-
-                                <div className={`transition-all duration-500 overflow-hidden ${showAI ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h3 className="font-bold text-gray-800 text-lg">AI Question Generator</h3>
-                                        <button
-                                            onClick={() => setShowAI(false)}
-                                            className="text-gray-400 hover:text-gray-600 font-bold text-sm hover:underline focus:outline-none cursor-pointer"
-                                        >
-                                            Close
-                                        </button>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Topic</label>
-                                            <input type="text"
-                                                className="w-full border border-gray-200 rounded-lg p-3 bg-white text-gray-800 outline-none focus:ring-2 focus:ring-examly-accent transition-all"
-                                                placeholder="e.g. World War II"
-                                                onChange={(e) => setInput(e.target.value)}
-                                                value={input}
-                                                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Count</label>
-                                                <input type="number"
-                                                    className="w-full border border-gray-200 rounded-lg p-3 bg-white text-gray-800 outline-none focus:ring-2 focus:ring-examly-accent transition-all"
-                                                    value={questionsCount}
-                                                    onChange={(e) => setQuestionsCount(parseInt(e.target.value))}
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Difficulty</label>
-                                                <select
-                                                    className="w-full border border-gray-200 rounded-lg p-3 bg-white text-gray-800 outline-none focus:ring-2 focus:ring-examly-accent transition-all appearance-none"
-                                                    value={difficulty}
-                                                    onChange={(e) => setDifficulty(e.target.value)}
-                                                >
-                                                    <option value="easy">Easy</option>
-                                                    <option value="medium">Medium</option>
-                                                    <option value="hard">Hard</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <label className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Type</label>
-                                                <select
-                                                    className="w-full border border-gray-200 rounded-lg p-3 bg-white text-gray-800 outline-none focus:ring-2 focus:ring-examly-accent transition-all appearance-none"
-                                                    value={type}
-                                                    onChange={(e) => setType(e.target.value)}
-                                                >
-                                                    <option value="multiple">Multiple Choice</option>
-                                                    <option value="true_false">True/False</option>
-                                                    <option value="mixed">Mixed</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            onClick={handleCreate}
-                                            disabled={isLoading}
-                                            className={`w-full mt-4 bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 flex justify-center items-center ${isLoading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:-translate-y-0.5 shadow-sm'}`}
-                                        >
-                                            {isLoading ? (
-                                                <span className="flex items-center gap-2">
-                                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                                    Generating...
-                                                </span>
-                                            ) : '✨ Generate Now'}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-6">
-                                {manualQuestions.map((q, index) => (
-                                    <div key={index} className="border border-gray-200 rounded-xl p-6 relative bg-white hover:border-gray-300 transition-colors">
-                                        <button
-                                            onClick={() => deleteQuestion(index)}
-                                            className="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-                                            title="Delete Question"
-                                        >
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                            </svg>
-                                        </button>
-
-                                        <h4 className="font-bold text-gray-700 mb-4">Question {index + 1}</h4>
-
-                                        <div className="space-y-4">
-                                            <input
-                                                className="w-full border-b-2 border-gray-200 py-2 bg-transparent text-gray-800 font-medium outline-none focus:border-examly-accent transition-colors placeholder-gray-400"
-                                                placeholder="Enter question here..."
-                                                value={q.question}
-                                                onChange={(e) => {
-                                                    const updatedQuestions = manualQuestions.map((q, i) =>
-                                                        i === index ? { ...q, question: e.target.value } : q
-                                                    );
-                                                    setManualQuestions(updatedQuestions);
-                                                }}
-                                            />
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                                <div>
-                                                    <label className="block text-xs font-bold text-green-600 uppercase mb-1">Correct Answer</label>
-                                                    <input
-                                                        className="w-full border border-green-200 rounded-lg p-3 bg-green-50/30 text-gray-800 outline-none focus:ring-1 focus:ring-green-500 transition-all"
-                                                        placeholder="Correct answer"
-                                                        value={q.correct_answer}
-                                                        onChange={(e) => {
-                                                            const updatedQuestions = manualQuestions.map((q, i) =>
-                                                                i === index ? { ...q, correct_answer: e.target.value } : q
-                                                            );
-                                                            setManualQuestions(updatedQuestions);
-                                                        }}
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-3">
-                                                    <label className="block text-xs font-bold text-gray-400 uppercase mb-1">Incorrect Answers</label>
-                                                    {q.incorrect_answers.map((ans, ansIndex) => (
-                                                        <input
-                                                            key={ansIndex}
-                                                            className="w-full border border-gray-200 rounded-lg p-3 bg-gray-50 text-gray-800 outline-none focus:ring-1 focus:ring-gray-300 transition-all text-sm"
-                                                            placeholder={`Wrong answer ${ansIndex + 1}`}
-                                                            value={ans}
-                                                            onChange={(e) => {
-                                                                const updatedQuestions = manualQuestions.map((q, i) =>
-                                                                    i === index ? { ...q, incorrect_answers: q.incorrect_answers.map((a, j) => j === ansIndex ? e.target.value : a) } : q
-                                                                );
-                                                                setManualQuestions(updatedQuestions);
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="flex justify-center pt-2">
-                                <button
-                                    onClick={addQuestion}
-                                    className="flex items-center gap-2 text-examly-accent font-bold hover:bg-teal-50 py-3 px-6 rounded-xl transition-colors cursor-pointer"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-                                    </svg>
-                                    Add Question
-                                </button>
-                            </div>
-
-                            {errorMessage && <p className="text-sm text-red-500 text-center font-medium">{errorMessage}</p>}
-
-                            <div className="pt-6 flex gap-4">
-                                <button
-                                    onClick={() => setStep(1)}
-                                    className="flex-1 py-4 px-6 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-all duration-300 cursor-pointer hover:-translate-y-0.5"
-                                >
-                                    Back
-                                </button>
-                                <button
-                                    onClick={handleNext}
-                                    className="flex-[2] bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 cursor-pointer hover:-translate-y-0.5 shadow-sm"
-                                >
-                                    Review & Launch
-                                </button>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
+      {/* ── LEFT SIDEBAR ── */}
+      <aside className="hidden lg:flex flex-col w-64 xl:w-72 shrink-0 sticky top-0 h-screen bg-white border-r border-gray-100 shadow-sm px-6 py-10">
+        <div className="mb-10">
+          <span className="text-xs font-bold text-examly-accent uppercase tracking-widest">Examly</span>
+          <h2 className="text-xl font-bold text-gray-800 mt-1">Create Exam</h2>
         </div>
-    );
-}
 
+        <nav className="flex flex-col gap-2">
+          {STEPS.map((s) => {
+            const isActive = step === s.num;
+            const isDone = step > s.num;
+            return (
+              <div key={s.num}
+                className={`flex items-start gap-4 p-4 rounded-xl transition-all duration-200 ${isActive ? 'bg-teal-50 border border-teal-100' : ''}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${isDone ? 'bg-examly-accent text-white' : isActive ? 'bg-examly-accent text-white ring-4 ring-teal-100' : 'bg-gray-200 text-gray-400'}`}>
+                  {isDone ? '✓' : s.num}
+                </div>
+                <div>
+                  <p className={`font-bold text-sm ${isActive ? 'text-gray-800' : isDone ? 'text-gray-600' : 'text-gray-400'}`}>{s.label}</p>
+                  <p className="text-xs text-gray-400 mt-0.5">{s.desc}</p>
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+
+        {/* Question counter */}
+        <div className="mt-auto pt-10">
+          <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-widest">Questions added</p>
+            <p className="text-3xl font-black text-gray-800 mt-1">{manualQuestions.filter(q => q.question).length}</p>
+            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-3">
+              <div
+                className="bg-examly-accent h-1.5 rounded-full transition-all duration-500"
+                style={{ width: `${Math.min((manualQuestions.filter(q => q.question).length / 10) * 100, 100)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── MAIN CONTENT ── */}
+      <div className="flex-1 flex flex-col min-w-0">
+
+        {/* Mobile step bar */}
+        <header className="lg:hidden flex items-center gap-2 px-6 py-4 bg-white border-b border-gray-100 sticky top-0 z-20">
+          {STEPS.map((s) => {
+            const isActive = step === s.num;
+            const isDone = step > s.num;
+            return (
+              <div key={s.num} className="flex items-center gap-2">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isDone ? 'bg-examly-accent text-white' : isActive ? 'bg-examly-accent text-white' : 'bg-gray-200 text-gray-400'}`}>
+                  {isDone ? '✓' : s.num}
+                </div>
+                <span className={`text-sm font-bold ${isActive ? 'text-gray-800' : 'text-gray-400'}`}>{s.label}</span>
+                {s.num < 3 && <span className="text-gray-300 mx-1">›</span>}
+              </div>
+            );
+          })}
+        </header>
+
+        <main className="flex-1 px-6 lg:px-10 xl:px-16 py-10">
+
+          {/* ── STEP 1: SETTINGS ── */}
+          {step === 1 && (
+            <div className="max-w-2xl">
+              <div className="mb-10">
+                <h1 className="text-3xl font-bold text-gray-800">Exam Settings</h1>
+                <p className="text-gray-500 mt-2">Configure the basics before adding questions.</p>
+              </div>
+
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+                <div>
+                  <label className={labelCls}>Exam Title <span className="text-examly-accent">*</span></label>
+                  <input type="text" className={inputCls} placeholder="e.g. Midterm History — Chapter 5"
+                    value={examTitle} onChange={(e) => setExamTitle(e.target.value)} />
+                </div>
+
+                <div>
+                  <label className={labelCls}>Description</label>
+                  <input type="text" className={inputCls} placeholder="Briefly describe what this exam covers..."
+                    value={examDescription} onChange={(e) => setExamDescription(e.target.value)} />
+                </div>
+
+                <div>
+                  <label className={labelCls}>Duration (minutes)</label>
+                  <input type="number" min="1" className={inputCls}
+                    value={examDuration} onChange={(e) => setExamDuration(parseInt(e.target.value))} />
+                </div>
+
+                {/* Public toggle */}
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-5">
+                  <label className="flex items-center justify-between cursor-pointer">
+                    <div>
+                      <p className="text-sm font-bold text-gray-700">Public Room</p>
+                      <p className="text-xs text-gray-400 mt-0.5">Visible on the Explore page for anyone to join</p>
+                    </div>
+                    <div className="relative ml-4 shrink-0" onClick={() => setIsPublic(!isPublic)}>
+                      <div className={`w-11 h-6 rounded-full cursor-pointer transition-colors duration-200 ${isPublic ? 'bg-examly-accent' : 'bg-gray-300'}`}>
+                        <div className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${isPublic ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </div>
+                    </div>
+                  </label>
+                </div>
+
+                {errorMessage && (
+                  <p className="text-sm text-red-500 font-medium">⚠ {errorMessage}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* ── STEP 2: QUESTIONS ── */}
+          {step === 2 && (
+            <div>
+              <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-800">Questions</h1>
+                  <p className="text-gray-500 mt-2">Add questions manually or generate them with AI.</p>
+                </div>
+                <button
+                  onClick={() => setShowAI(!showAI)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer border ${showAI ? 'bg-teal-50 border-examly-accent text-examly-accent' : 'bg-white border-gray-200 text-gray-600 hover:border-examly-accent hover:text-examly-accent shadow-sm'}`}>
+                  ✨ {showAI ? 'Hide AI Panel' : 'Generate with AI'}
+                </button>
+              </div>
+
+              {/* Question cards */}
+              <div className="space-y-5">
+                {manualQuestions.map((q, index) => (
+                  <div key={index} className="bg-white border border-gray-100 rounded-2xl shadow-sm p-6 hover:border-gray-200 transition-colors group">
+                    {/* Card header */}
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="flex items-center gap-3">
+                        <span className="text-4xl font-black text-gray-200 leading-none select-none">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Question</span>
+                      </div>
+                      <button onClick={() => deleteQuestion(index)}
+                        className="opacity-0 group-hover:opacity-100 text-gray-300 hover:text-red-400 transition-all cursor-pointer p-1.5 rounded-lg hover:bg-red-50"
+                        title="Delete question">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Question text input */}
+                    <input
+                      className="w-full border-b-2 border-gray-200 pb-3 bg-transparent text-gray-800 text-base font-medium outline-none focus:border-examly-accent transition-colors placeholder-gray-300"
+                      placeholder="Type your question here..."
+                      value={q.question}
+                      onChange={(e) => {
+                        const updated = manualQuestions.map((item, i) => i === index ? { ...item, question: e.target.value } : item);
+                        setManualQuestions(updated);
+                      }}
+                    />
+
+                    {/* Answers 2x2 grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
+                      {/* Correct answer */}
+                      <div>
+                        <label className="block text-xs font-bold text-green-600 uppercase tracking-wider mb-1.5">✓ Correct Answer</label>
+                        <input
+                          className="w-full border border-green-200 rounded-xl px-4 py-3 bg-green-50/40 text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-sm"
+                          placeholder="Correct answer"
+                          value={q.correct_answer}
+                          onChange={(e) => {
+                            const updated = manualQuestions.map((item, i) => i === index ? { ...item, correct_answer: e.target.value } : item);
+                            setManualQuestions(updated);
+                          }}
+                        />
+                      </div>
+
+                      {/* Incorrect answers */}
+                      {q.incorrect_answers.map((ans, ansIndex) => (
+                        <div key={ansIndex}>
+                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">✗ Wrong {ansIndex + 1}</label>
+                          <input
+                            className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-sm"
+                            placeholder={`Wrong answer ${ansIndex + 1}`}
+                            value={ans}
+                            onChange={(e) => {
+                              const updated = manualQuestions.map((item, i) =>
+                                i === index ? { ...item, incorrect_answers: item.incorrect_answers.map((a, j) => j === ansIndex ? e.target.value : a) } : item
+                              );
+                              setManualQuestions(updated);
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Add Question — full width dashed */}
+              <button
+                onClick={addQuestion}
+                className="w-full mt-5 py-4 border-2 border-dashed border-gray-200 rounded-2xl text-gray-400 hover:border-examly-accent hover:text-examly-accent hover:bg-teal-50/30 transition-all duration-200 cursor-pointer font-bold flex items-center justify-center gap-2 text-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Add Question
+              </button>
+
+              {errorMessage && (
+                <p className="text-sm text-red-500 font-medium text-center mt-4">⚠ {errorMessage}</p>
+              )}
+            </div>
+          )}
+        </main>
+
+        {/* ── FIXED BOTTOM BAR ── */}
+        <div className="fixed bottom-0 left-0 lg:left-64 xl:left-72 right-0 z-30 bg-white/90 backdrop-blur border-t border-gray-100 shadow-sm px-6 lg:px-10 xl:px-16 py-4 flex items-center gap-4">
+          {step === 1 && (
+            <>
+              <button onClick={() => navigate(-1)}
+                className="px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm transition-all cursor-pointer">
+                ← Back
+              </button>
+              <button onClick={handleStepNext}
+                className="flex-1 max-w-xs ml-auto py-3 rounded-xl bg-examly-accent hover:bg-teal-800 text-white font-bold text-sm transition-all cursor-pointer hover:-translate-y-0.5 shadow-sm">
+                Next: Add Questions →
+              </button>
+            </>
+          )}
+          {step === 2 && (
+            <>
+              <button onClick={() => setStep(1)}
+                className="px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm transition-all cursor-pointer">
+                ← Back
+              </button>
+              <span className="text-sm text-gray-400 ml-auto">
+                <span className="font-bold text-gray-700">{manualQuestions.filter(q => q.question).length}</span> questions
+              </span>
+              <button onClick={handleNext}
+                className="px-8 py-3 rounded-xl bg-examly-accent hover:bg-teal-800 text-white font-bold text-sm transition-all cursor-pointer hover:-translate-y-0.5 shadow-sm flex items-center gap-2">
+                🚀 Review &amp; Launch
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* ── AI RIGHT PANEL ── */}
+      {showAI && step === 2 && (
+        <aside className="hidden xl:flex flex-col shrink-0 sticky top-0 h-screen bg-white border-l border-gray-100 shadow-sm px-6 py-10" style={{ width: '22rem' }}>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <span className="text-xs font-bold text-examly-accent uppercase tracking-widest">AI Generator</span>
+              <h3 className="text-lg font-bold text-gray-800 mt-0.5">Generate Questions</h3>
+            </div>
+            <button onClick={() => setShowAI(false)}
+              className="text-gray-400 hover:text-gray-600 cursor-pointer p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-5 flex-1">
+            <div>
+              <label className={labelCls}>Topic</label>
+              <input type="text"
+                className={inputCls}
+                placeholder="e.g. World War II"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+              />
+            </div>
+
+            <div>
+              <label className={labelCls}>Number of Questions</label>
+              <input type="number" className={inputCls}
+                value={questionsCount}
+                onChange={(e) => setQuestionsCount(parseInt(e.target.value))}
+              />
+            </div>
+
+            <div>
+              <label className={labelCls}>Difficulty</label>
+              <select className={`${inputCls} appearance-none cursor-pointer`}
+                value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                <option value="easy">Easy — High school level</option>
+                <option value="medium">Medium — University level</option>
+                <option value="hard">Hard — Expert level</option>
+              </select>
+            </div>
+
+            <div>
+              <label className={labelCls}>Question Type</label>
+              <select className={`${inputCls} appearance-none cursor-pointer`}
+                value={type} onChange={(e) => setType(e.target.value)}>
+                <option value="multiple">Multiple Choice</option>
+                <option value="true_false">True / False</option>
+                <option value="mixed">Mixed</option>
+              </select>
+            </div>
+
+            {errorMessage && (
+              <p className="text-xs text-red-500 font-medium">⚠ {errorMessage}</p>
+            )}
+
+            <button
+              onClick={handleCreate}
+              disabled={isLoading}
+              className={`w-full py-4 rounded-xl font-bold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${isLoading ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-examly-accent hover:bg-teal-800 text-white cursor-pointer hover:-translate-y-0.5 shadow-sm'}`}>
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Generating...
+                </>
+              ) : '✨ Generate Now'}
+            </button>
+          </div>
+
+          <div className="mt-6 bg-gray-50 border border-gray-100 rounded-xl p-4">
+            <p className="text-xs text-gray-400">Questions will be appended to your list. You can edit them freely after generation.</p>
+          </div>
+        </aside>
+      )}
+    </div>
+  );
+}
