@@ -76,7 +76,7 @@ export function CreateExam() {
 
   const addQuestion = () => {
     setManualQuestions([...manualQuestions,
-      { question: '', correct_answer: '', incorrect_answers: ['', '', ''] }
+    { question: '', correct_answer: '', incorrect_answers: ['', '', ''] }
     ]);
   };
 
@@ -119,7 +119,7 @@ export function CreateExam() {
               <div key={s.num}
                 className={`flex items-start gap-4 p-4 rounded-xl transition-all duration-200 ${isActive ? 'bg-teal-50 border border-teal-100' : ''}`}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0 transition-colors ${isDone ? 'bg-examly-accent text-white' : isActive ? 'bg-examly-accent text-white ring-4 ring-teal-100' : 'bg-gray-200 text-gray-400'}`}>
-                  {isDone ? '✓' : s.num}
+                  {isDone ? 'Done' : s.num}
                 </div>
                 <div>
                   <p className={`font-bold text-sm ${isActive ? 'text-gray-800' : isDone ? 'text-gray-600' : 'text-gray-400'}`}>{s.label}</p>
@@ -156,7 +156,7 @@ export function CreateExam() {
             return (
               <div key={s.num} className="flex items-center gap-2">
                 <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${isDone ? 'bg-examly-accent text-white' : isActive ? 'bg-examly-accent text-white' : 'bg-gray-200 text-gray-400'}`}>
-                  {isDone ? '✓' : s.num}
+                  {isDone ? 'Done' : s.num}
                 </div>
                 <span className={`text-sm font-bold ${isActive ? 'text-gray-800' : 'text-gray-400'}`}>{s.label}</span>
                 {s.num < 3 && <span className="text-gray-300 mx-1">›</span>}
@@ -210,7 +210,7 @@ export function CreateExam() {
                 </div>
 
                 {errorMessage && (
-                  <p className="text-sm text-red-500 font-medium">⚠ {errorMessage}</p>
+                  <p className="text-sm text-red-500 font-medium"> {errorMessage}</p>
                 )}
               </div>
             </div>
@@ -219,17 +219,39 @@ export function CreateExam() {
           {/* ── STEP 2: QUESTIONS ── */}
           {step === 2 && (
             <div>
-              <div className="mb-8 flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                  <h1 className="text-3xl font-bold text-gray-800">Questions</h1>
-                  <p className="text-gray-500 mt-2">Add questions manually or generate them with AI.</p>
-                </div>
-                <button
-                  onClick={() => setShowAI(!showAI)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 cursor-pointer border ${showAI ? 'bg-teal-50 border-examly-accent text-examly-accent' : 'bg-white border-gray-200 text-gray-600 hover:border-examly-accent hover:text-examly-accent shadow-sm'}`}>
-                  ✨ {showAI ? 'Hide AI Panel' : 'Generate with AI'}
-                </button>
+              <div className="mb-6">
+                <h1 className="text-3xl font-bold text-gray-800">Questions</h1>
+                <p className="text-gray-500 mt-2">Add questions manually or generate them with AI.</p>
               </div>
+
+              {/* AI Banner */}
+              {!showAI ? (
+                <div className="mb-8 rounded-2xl overflow-hidden" style={{ background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 60%, #134e4a 100%)' }}>
+                  <div className="flex items-center justify-between gap-4 px-6 py-5">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M11 3a1 1 0 10-2 0v1a1 1 0 102 0V3zM15.657 5.757a1 1 0 00-1.414-1.414l-.707.707a1 1 0 001.414 1.414l.707-.707zM18 10a1 1 0 01-1 1h-1a1 1 0 110-2h1a1 1 0 011 1zM5.05 6.464A1 1 0 106.464 5.05l-.707-.707a1 1 0 00-1.414 1.414l.707.707zM5 10a1 1 0 01-1 1H3a1 1 0 110-2h1a1 1 0 011 1zM8 16v-1h4v1a2 2 0 11-4 0zM12 14c.015-.298.057-.592.123-.877a3 3 0 10-4.246 0c.066.285.108.579.123.877h4z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-white font-bold text-sm">Save time — generate questions with AI in seconds</p>
+                        <p className="text-teal-200 text-xs mt-0.5">Pick a topic, difficulty and question count. We'll do the rest.</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowAI(true)}
+                      className="shrink-0 px-5 py-2.5 bg-white text-teal-700 font-bold text-sm rounded-xl hover:bg-teal-50 transition-all duration-200 cursor-pointer shadow-sm whitespace-nowrap">
+                      Generate Now
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-8 flex items-center justify-between bg-teal-50 border border-teal-100 rounded-2xl px-5 py-3">
+                  <p className="text-teal-700 text-sm font-medium">AI panel is open on the right</p>
+                  <button onClick={() => setShowAI(false)} className="text-teal-600 hover:text-teal-800 text-sm font-bold cursor-pointer transition-colors">Hide</button>
+                </div>
+              )}
 
               {/* Question cards */}
               <div className="space-y-5">
@@ -265,7 +287,7 @@ export function CreateExam() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-5">
                       {/* Correct answer */}
                       <div>
-                        <label className="block text-xs font-bold text-green-600 uppercase tracking-wider mb-1.5">✓ Correct Answer</label>
+                        <label className="block text-xs font-bold text-green-600 uppercase tracking-wider mb-1.5">Correct Answer</label>
                         <input
                           className="w-full border border-green-200 rounded-xl px-4 py-3 bg-green-50/40 text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-300 focus:border-green-300 transition-all text-sm"
                           placeholder="Correct answer"
@@ -280,7 +302,7 @@ export function CreateExam() {
                       {/* Incorrect answers */}
                       {q.incorrect_answers.map((ans, ansIndex) => (
                         <div key={ansIndex}>
-                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">✗ Wrong {ansIndex + 1}</label>
+                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Wrong {ansIndex + 1}</label>
                           <input
                             className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-50 text-gray-800 placeholder-gray-400 outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-300 transition-all text-sm"
                             placeholder={`Wrong answer ${ansIndex + 1}`}
@@ -310,7 +332,7 @@ export function CreateExam() {
               </button>
 
               {errorMessage && (
-                <p className="text-sm text-red-500 font-medium text-center mt-4">⚠ {errorMessage}</p>
+                <p className="text-sm text-red-500 font-medium text-center mt-4"> {errorMessage}</p>
               )}
             </div>
           )}
@@ -322,11 +344,11 @@ export function CreateExam() {
             <>
               <button onClick={() => navigate(-1)}
                 className="px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm transition-all cursor-pointer">
-                ← Back
+                Back
               </button>
               <button onClick={handleStepNext}
                 className="flex-1 max-w-xs ml-auto py-3 rounded-xl bg-examly-accent hover:bg-teal-800 text-white font-bold text-sm transition-all cursor-pointer hover:-translate-y-0.5 shadow-sm">
-                Next: Add Questions →
+                Next: Add Questions
               </button>
             </>
           )}
@@ -334,14 +356,14 @@ export function CreateExam() {
             <>
               <button onClick={() => setStep(1)}
                 className="px-6 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm transition-all cursor-pointer">
-                ← Back
+                Back
               </button>
               <span className="text-sm text-gray-400 ml-auto">
                 <span className="font-bold text-gray-700">{manualQuestions.filter(q => q.question).length}</span> questions
               </span>
               <button onClick={handleNext}
                 className="px-8 py-3 rounded-xl bg-examly-accent hover:bg-teal-800 text-white font-bold text-sm transition-all cursor-pointer hover:-translate-y-0.5 shadow-sm flex items-center gap-2">
-                🚀 Review &amp; Launch
+                 Review &amp; Launch
               </button>
             </>
           )}
@@ -405,7 +427,7 @@ export function CreateExam() {
             </div>
 
             {errorMessage && (
-              <p className="text-xs text-red-500 font-medium">⚠ {errorMessage}</p>
+              <p className="text-xs text-red-500 font-medium"> {errorMessage}</p>
             )}
 
             <button
@@ -420,7 +442,7 @@ export function CreateExam() {
                   </svg>
                   Generating...
                 </>
-              ) : '✨ Generate Now'}
+              ) : 'Generate Now'}
             </button>
           </div>
 
