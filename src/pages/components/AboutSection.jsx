@@ -1,6 +1,6 @@
 export function AboutSection() {
     return (
-        <div className="bg-white py-24 w-full">
+        <div className="bg-white py-24 w-full cursor-pointer">
             <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                 <div className="space-y-6">
                     <h2 className="text-4xl font-bold text-gray-800 leading-tight">A Smarter Way to Run Exams</h2>
@@ -44,9 +44,9 @@ export function AboutSection() {
                     </div>
                 </div>
                 <div className="relative hidden md:flex items-center justify-center">
-                    <img 
-                        src="/examly_education_illustration.png" 
-                        alt="Educational platform illustration" 
+                    <img
+                        src="/examly_education_illustration.png"
+                        alt="Educational platform illustration"
                         className="w-full h-auto max-w-md mx-auto rounded-3xl shadow-lg border border-gray-100 object-cover hover:-translate-y-2 transition-transform duration-500"
                     />
                 </div>

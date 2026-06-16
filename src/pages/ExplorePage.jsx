@@ -7,6 +7,7 @@ export function ExplorePage() {
     const [rooms, setRooms] = useState([]);
     const [search, setSearch] = useState('');
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
 
     const navigate = useNavigate();
 
@@ -32,7 +33,8 @@ export function ExplorePage() {
                     setRooms(roomsArray);
                 }
             } catch (err) {
-                console.error(err);
+                console.error('Firebase error:', err);
+                setError(err.message || 'Failed to load rooms. Check database rules.');
             } finally {
                 setLoading(false);
             }
@@ -72,7 +74,7 @@ export function ExplorePage() {
                             </svg>
                         </div>
                     </div>
-                    
+
                     <div className="mt-4 text-gray-500 font-medium">
                         {loading ? 'Loading public exams...' : `${filteredRooms.length} result${filteredRooms.length !== 1 ? 's' : ''} found`}
                     </div>
@@ -97,11 +99,11 @@ export function ExplorePage() {
                                     {room.difficulty}
                                 </span>
                             </div>
-                            
+
                             <p className="text-gray-500 text-sm mb-6 flex-1 line-clamp-3">
                                 {room.examDescription || 'No description provided for this exam.'}
                             </p>
-                            
+
                             <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-50">
                                 <span className="text-sm font-medium text-gray-400 flex items-center gap-1.5">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,7 +113,7 @@ export function ExplorePage() {
                                 </span>
                                 <button
                                     onClick={() => navigate(`/exam/${room.roomCode}`)}
-                                    className="bg-examly-accent hover:brightness-95 text-white font-bold py-2 px-6 rounded-lg transition-colors text-sm"
+                                    className="bg-examly-accent hover:brightness-95 text-white font-bold py-2 px-6 rounded-lg transition-colors text-sm cursor-pointer"
                                 >
                                     Join Exam
                                 </button>
