@@ -1,82 +1,17 @@
-import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { db } from '../firebase.js';
-import { ref, onValue } from 'firebase/database';
-import { auth } from '../firebase.js';
-import { update, onDisconnect } from 'firebase/database';
-import { useNavigate } from 'react-router-dom';
+import { useLobbyPage } from '../hooks/useLobbyPage';
 
 export function LobbyPage() {
-    const { roomCode } = useParams();
-    const [participants, setParticipants] = useState({});
-    const [roomData, setRoomData] = useState(null);
-    const navigate = useNavigate();
-    const [isHost, setIsHost] = useState(false);
-    const [showLeaveModal, setShowLeaveModal] = useState(false);
-
-    useEffect(() => {
-        const roomRef = ref(db, 'rooms/' + roomCode);
-        const unsubscribe = onValue(roomRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                setParticipants(data.participants || {});
-                setRoomData(data);
-                const currentIsHost = auth.currentUser?.uid === data.hostId;
-                setIsHost(currentIsHost);
-        
-                // If room is public = start immediately
-                if (data.isPublic && !currentIsHost) {
-                    update(ref(db, 'rooms/' + roomCode), { status: 'active' });
-                    navigate('/exam/' + roomCode);
-                    return;
-                }
-                // If room becomes active and user is not host, navigate to exam page
-                if (data.status === 'active' && !currentIsHost) {
-                    navigate('/exam/' + roomCode);
-                }
-            }
-        });
-        return () => unsubscribe();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [roomCode]);
-
-    // Add participant to room on join
-    useEffect(() => {
-        if (!auth.currentUser) return;
-        if (roomData && !isHost) {
-            const participantRef = ref(db, 'rooms/' + roomCode + '/participants/' + auth.currentUser.uid);
-
-            update(participantRef, {
-                name: auth.currentUser.displayName,
-                status: 'joined'
-            });
-            onDisconnect(participantRef).update({ status: 'disconnected' });
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isHost, roomData]);
-
-    // Warn before unload for host
-    useEffect(() => {
-        const handleBeforeUnload = (e) => {
-            if (isHost && roomData && roomData.status !== 'active') {
-                e.preventDefault();
-                e.returnValue = '';
-            }
-        };
-        window.addEventListener('beforeunload', handleBeforeUnload);
-        return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }, [isHost, roomData]);
-
-    const handleStartExam = () => {
-        if (roomData && isHost) {
-            update(ref(db, 'rooms/' + roomCode), { status: 'active' });
-        }
-    };
-
-    const copyRoomCode = () => {
-        navigator.clipboard.writeText(roomCode);
-    };
+    const {
+        roomCode,
+        participants,
+        roomData,
+        isHost,
+        showLeaveModal,
+        setShowLeaveModal,
+        handleStartExam,
+        copyRoomCode,
+        navigate
+    } = useLobbyPage();
 
     return (
         <div className="min-h-screen bg-examly-base font-sans flex flex-col pb-32">
@@ -143,12 +78,12 @@ export function LobbyPage() {
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <span className={`text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full border ${
-                                                        participant.status === 'finished' ? 'bg-green-100 text-green-700 border-green-200' : 
+                                                        participant.status === 'finished' || participant.score !== undefined ? 'bg-green-100 text-green-700 border-green-200' : 
                                                         'bg-gray-100 text-gray-600 border-gray-200'
                                                     }`}>
-                                                        {participant.status}
+                                                        {participant.score !== undefined ? 'finished' : participant.status}
                                                     </span>
-                                                    {participant.status === 'finished' && (
+                                                    {(participant.status === 'finished' || participant.score !== undefined) && (
                                                         <button 
                                                             onClick={() => navigate('/host-results/' + roomCode + '/' + participant.name)}
                                                             className="text-sm font-bold text-examly-accent hover:underline bg-teal-50 hover:bg-teal-100 px-3 py-1 rounded-lg transition-colors cursor-pointer"
@@ -167,14 +102,16 @@ export function LobbyPage() {
                         <div className="flex justify-center">
                             <button 
                                 onClick={handleStartExam}
-                                disabled={Object.keys(participants).length === 0}
+                                disabled={Object.keys(participants).length === 0 || roomData?.status === 'active'}
                                 className={`w-full max-w-sm py-4 px-8 rounded-xl font-bold text-lg transition-all duration-300 shadow-sm ${
-                                    Object.keys(participants).length > 0 
+                                    roomData?.status === 'active'
+                                    ? 'bg-teal-800 text-teal-100 cursor-not-allowed opacity-80'
+                                    : Object.keys(participants).length > 0 
                                     ? 'bg-examly-accent hover:bg-teal-800 text-white cursor-pointer hover:-translate-y-0.5' 
                                     : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                 }`}
                             >
-                                Start Exam
+                                {roomData?.status === 'active' ? 'Exam Active' : 'Start Exam'}
                             </button>
                         </div>
                     </div>

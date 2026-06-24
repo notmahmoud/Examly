@@ -3,8 +3,8 @@ import { HomePage } from './pages/HomePage';
 import { ExamResults } from './pages/ExamResults';
 import { CreateExam } from './pages/CreateExam';
 import { LoginPage } from './pages/LoginPage'
-import { ProtectedRoute } from './pages/components/ProtectedRoute';
-import { Navbar } from './pages/components/Navbar';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { Navbar } from './components/Navbar';
 import { ExamRoom } from './pages/ExamRoom';
 import { Review } from './pages/Review';
 import { LobbyPage } from './pages/LobbyPage';

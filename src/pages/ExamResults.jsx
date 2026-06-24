@@ -7,7 +7,7 @@ export function ExamResults() {
     const { score, questions, userAnswers } = location.state || {};
 
     if (!questions) return <Navigate to="/" />;
-    
+
     // Decode HTML entities in questions and answers for proper display
     const decode = (str) => {
         const txt = document.createElement('textarea');
@@ -34,12 +34,12 @@ export function ExamResults() {
                             <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 overflow-hidden relative">
                                 {/* Left border indicator */}
                                 <div className={`absolute left-0 top-0 bottom-0 w-2 ${isCorrect ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                
+
                                 <h3 className="text-lg font-medium text-gray-800 mb-6 pl-4">
                                     <span className="font-bold mr-2 text-gray-400">{index + 1}.</span>
                                     {decode(question.question)}
                                 </h3>
-                                
+
                                 <div className="space-y-3 pl-4">
                                     <div className="flex items-start gap-3">
                                         <div className="w-28 text-xs font-bold text-gray-400 uppercase pt-1">Your Answer</div>
@@ -47,7 +47,7 @@ export function ExamResults() {
                                             {decode(userAnswers[index] || 'Not answered')}
                                         </div>
                                     </div>
-                                    
+
                                     {!isCorrect && (
                                         <div className="flex items-start gap-3">
                                             <div className="w-28 text-xs font-bold text-gray-400 uppercase pt-1">Correct</div>
@@ -63,9 +63,9 @@ export function ExamResults() {
                 </div>
 
                 <div className="flex justify-center">
-                    <button 
+                    <button
                         onClick={() => navigate('/')}
-                        className="bg-examly-accent hover:brightness-95 text-white font-bold py-4 px-12 rounded-xl transition-all shadow-sm"
+                        className="bg-examly-accent hover:bg-teal-800 text-white font-bold py-4 px-12 rounded-xl cursor-pointer shadow-md text-lg"
                     >
                         Back to Home
                     </button>

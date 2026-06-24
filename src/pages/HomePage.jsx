@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
-import { FeaturedRooms } from './components/FeaturedRooms';
-import { VisionSection } from './components/VisionSection';
-import { AboutSection } from './components/AboutSection';
+import { FeaturedRooms } from '../components/FeaturedRooms';
+import { VisionSection } from '../components/VisionSection';
+import { AboutSection } from '../components/AboutSection';
 
 export function HomePage() {
     const navigate = useNavigate();

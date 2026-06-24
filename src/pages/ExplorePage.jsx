@@ -1,62 +1,12 @@
-import { useEffect, useState } from 'react';
-import { db } from '../firebase';
-import { ref, get } from 'firebase/database';
 import { useNavigate } from 'react-router-dom';
+import { useExplorePage, difficultyColors } from '../hooks/useExplorePage';
 
 export function ExplorePage() {
-    const [rooms, setRooms] = useState([]);
-    const [search, setSearch] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchPublicRooms = async () => {
-            try {
-                const snapshot = await get(ref(db, 'publicRooms'));
-
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-
-                    const roomsArray = Object.entries(data).map(
-                        ([roomCode, room]) => ({
-                            roomCode,
-                            ...room
-                        })
-                    );
-
-                    roomsArray.sort(
-                        (a, b) => b.createdAt - a.createdAt
-                    );
-
-                    setRooms(roomsArray);
-                }
-            } catch (err) {
-                console.error('Firebase error:', err);
-                setError(err.message || 'Failed to load rooms. Check database rules.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchPublicRooms();
-    }, []);
-
-    const filteredRooms = rooms.filter(room =>
-        room.examTitle
-            ?.toLowerCase()
-            .includes(search.toLowerCase())
-    );
-
-    const difficultyColors = {
-        easy: 'bg-green-100 text-green-700 border-green-200',
-        medium: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-        hard: 'bg-red-100 text-red-700 border-red-200'
-    };
+    const { search, setSearch, loading, error, filteredRooms } = useExplorePage();
 
     return (
-        <div className="min-h-screen bg-examly-base font-sans  flex flex-col pb-32">
+        <div className="min-h-screen bg-examly-base font-sans flex flex-col pb-32">
             <div className="flex-1 max-w-6xl w-full mx-auto px-6 pt-20">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold text-gray-800 mb-8">Explore Exams</h1>
@@ -79,6 +29,8 @@ export function ExplorePage() {
                         {loading ? 'Loading public exams...' : `${filteredRooms.length} result${filteredRooms.length !== 1 ? 's' : ''} found`}
                     </div>
                 </div>
+
+                {error && <p className="text-center text-red-500 font-medium mb-6">{error}</p>}
 
                 {!loading && filteredRooms.length === 0 && (
                     <div className="text-center py-20 text-gray-400">
