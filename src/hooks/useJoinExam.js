@@ -10,6 +10,7 @@ export function useJoinExam() {
 
     const handleJoin = async () => {
         try {
+            const roomRef = ref(db, 'rooms/' + roomCode);
             const snapshot = await get(roomRef);
             const data = snapshot.val();
             if (data) {

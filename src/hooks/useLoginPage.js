@@ -42,10 +42,10 @@ export function useLoginPage() {
             if (password !== confirmPassword) {
                 setErrorMessage('Passwords do not match');
                 return;
-                if (!name) {
-                    setErrorMessage('Name is required');
-                    return;
-                }
+            }
+            if (!name) {
+                setErrorMessage('Name is required');
+                return;
             }
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;

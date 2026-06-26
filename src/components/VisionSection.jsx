@@ -1,6 +1,6 @@
 export function VisionSection() {
     return (
-        <div className="bg-examly-base border-b border-gray-100 shadow-sm relative z-10 w-full py-24">
+        <div id="vision" className="bg-examly-base border-b border-gray-100 shadow-sm relative z-10 w-full py-24">
             <div className="max-w-6xl mx-auto px-6 w-full">
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-bold text-gray-800 mb-4">Learning Should Be Engaging, Not Exhausting</h2>

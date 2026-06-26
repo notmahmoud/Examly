@@ -14,8 +14,6 @@ export function Review() {
         examDescription,
         examDuration,
         difficulty,
-        questionsCount,
-        type,
         isPublic,
         handleLaunch
     } = useReview();

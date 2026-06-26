@@ -1,6 +1,6 @@
 export function AboutSection() {
     return (
-        <div className="bg-white py-24 w-full cursor-pointer">
+        <div id="mission" className="bg-white py-24 w-full cursor-pointer">
             <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
                 <div className="space-y-6">
                     <h2 className="text-4xl font-bold text-gray-800 leading-tight">A Smarter Way to Run Exams</h2>
